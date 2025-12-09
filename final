@@ -1,0 +1,182 @@
+package awtlayoutdemo;
+
+import java.awt.*;
+import java.awt.event.*;
+
+class AWTLayoutDemo extends Frame implements ActionListener, AdjustmentListener {
+    // Declare components
+    Label nameLabel, genderLabel, langLabel, countryLabel, addressLabel, hobbyLabel, scrollbarLabel, ageValueLabel;
+    TextField nameField;
+    TextArea addressArea;
+    Checkbox cbHindi, cbEnglish, cbFrench;
+    CheckboxGroup genderGroup;
+    Checkbox male, female;
+    Choice countryChoice;
+    List hobbyList;
+    Scrollbar ageScrollbar;
+    Button submitBtn, clearBtn;
+    TextArea resultArea;
+
+    public AWTLayoutDemo() {
+        super("Student Registration Form - AWT Layout Demo");
+        setSize(700, 600);
+        setLayout(new BorderLayout(10, 10));
+
+        // ===== TOP PANEL (Title) =====
+        Label title = new Label("Student Registration Form", Label.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 20));
+        add(title, BorderLayout.NORTH);
+
+        // ===== CENTER PANEL (Form Fields) =====
+        Panel centerPanel = new Panel(new GridLayout(8, 2, 10, 10));
+
+        // 1. Name
+        nameLabel = new Label("Name:");
+        nameField = new TextField(30);
+        centerPanel.add(nameLabel);
+        centerPanel.add(nameField);
+
+        // 2. Gender (Radio buttons)
+        genderLabel = new Label("Gender:");
+        Panel genderPanel = new Panel(new FlowLayout(FlowLayout.LEFT));
+        genderGroup = new CheckboxGroup();
+        male = new Checkbox("Male", genderGroup, false);
+        female = new Checkbox("Female", genderGroup, false);
+        genderPanel.add(male);
+        genderPanel.add(female);
+        centerPanel.add(genderLabel);
+        centerPanel.add(genderPanel);
+
+        // 3. Languages (Checkboxes)
+        langLabel = new Label("Languages Known:");
+        Panel langPanel = new Panel(new FlowLayout(FlowLayout.LEFT));
+        cbHindi = new Checkbox("Hindi");
+        cbEnglish = new Checkbox("English");
+        cbFrench = new Checkbox("French");
+        langPanel.add(cbHindi);
+        langPanel.add(cbEnglish);
+        langPanel.add(cbFrench);
+        centerPanel.add(langLabel);
+        centerPanel.add(langPanel);
+
+        // 4. Country (Choice)
+        countryLabel = new Label("Country:");
+        countryChoice = new Choice();
+        countryChoice.add("India");
+        countryChoice.add("USA");
+        countryChoice.add("UK");
+        countryChoice.add("Canada");
+        countryChoice.add("Australia");
+        centerPanel.add(countryLabel);
+        centerPanel.add(countryChoice);
+
+        // 5. Address (TextArea)
+        addressLabel = new Label("Address:");
+        addressArea = new TextArea(4, 40);
+        centerPanel.add(addressLabel);
+        centerPanel.add(addressArea);
+
+        // 6. Hobbies (List)
+        hobbyLabel = new Label("Select Hobbies:");
+        hobbyList = new List(4, true);
+        hobbyList.add("Reading");
+        hobbyList.add("Traveling");
+        hobbyList.add("Sports");
+        hobbyList.add("Music");
+        hobbyList.add("Cooking");
+        centerPanel.add(hobbyLabel);
+        centerPanel.add(hobbyList);
+
+        // 7. Scrollbar (Age)
+        scrollbarLabel = new Label("Age:");
+        Panel agePanel = new Panel(new FlowLayout(FlowLayout.LEFT));
+        ageScrollbar = new Scrollbar(Scrollbar.HORIZONTAL, 18, 1, 10, 60);
+        ageValueLabel = new Label("18");
+        agePanel.add(ageScrollbar);
+        agePanel.add(ageValueLabel);
+        centerPanel.add(scrollbarLabel);
+        centerPanel.add(agePanel);
+
+        add(centerPanel, BorderLayout.CENTER);
+
+        // ===== BOTTOM PANEL (Buttons & Result Area) =====
+        Panel bottomPanel = new Panel(new BorderLayout(5, 5));
+
+        Panel buttonPanel = new Panel(new FlowLayout());
+        submitBtn = new Button("Submit");
+        clearBtn = new Button("Clear");
+        buttonPanel.add(submitBtn);
+        buttonPanel.add(clearBtn);
+
+        resultArea = new TextArea(5, 60);
+        resultArea.setEditable(false);
+
+        bottomPanel.add(buttonPanel, BorderLayout.NORTH);
+        bottomPanel.add(resultArea, BorderLayout.CENTER);
+
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        // ===== Event Listeners =====
+        ageScrollbar.addAdjustmentListener(this);
+        submitBtn.addActionListener(this);
+        clearBtn.addActionListener(this);
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+
+        setVisible(true);
+    }
+
+    // Scrollbar value update
+    public void adjustmentValueChanged(AdjustmentEvent e) {
+        int age = ageScrollbar.getValue();
+        ageValueLabel.setText(String.valueOf(age));
+    }
+
+    // Button actions
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == submitBtn) {
+            String name = nameField.getText();
+            String gender = genderGroup.getSelectedCheckbox() != null
+                    ? genderGroup.getSelectedCheckbox().getLabel() : "Not selected";
+            String lang = "";
+            if (cbHindi.getState()) lang += "Hindi ";
+            if (cbEnglish.getState()) lang += "English ";
+            if (cbFrench.getState()) lang += "French ";
+            String country = countryChoice.getSelectedItem();
+            String address = addressArea.getText();
+            String[] hobbies = hobbyList.getSelectedItems();
+            int age = ageScrollbar.getValue();
+
+            String info = "=== Student Details ===\n"
+                    + "Name: " + name
+                    + "\nGender: " + gender
+                    + "\nLanguages: " + lang
+                    + "\nCountry: " + country
+                    + "\nAddress: " + address
+                    + "\nHobbies: " + String.join(", ", hobbies)
+                    + "\nAge: " + age;
+
+            resultArea.setText(info);
+        } else if (e.getSource() == clearBtn) {
+            nameField.setText("");
+            genderGroup.setSelectedCheckbox(null);
+            cbHindi.setState(false);
+            cbEnglish.setState(false);
+            cbFrench.setState(false);
+            countryChoice.select(0);
+            addressArea.setText("");
+            hobbyList.deselect(hobbyList.getSelectedIndex());
+            ageScrollbar.setValue(18);
+            ageValueLabel.setText("18");
+            resultArea.setText("");
+        }
+    }
+
+    public static void main(String[] args) {
+        new AWTLayoutDemo();
+    }
+}
